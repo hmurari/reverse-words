@@ -128,3 +128,52 @@ OK, that was like three lines of code! Let's walk through it to see what it does
 - The next line is similar to method-1 above - we strip the last punctuations, then split rest of the words. We then reverse that array and join it back to make a string.
 - Finally we add back the end punctuations we stored earlier (`end_puncs`)
 
+## C
+C is definitely more trickier for doing anything like this. You are dealing with characters/pointers directly and don't have access to fancy regex libraries. But it's a great language to learn algorithms - and we will show a solution to this problem written in C. You can find source code in `reverse-words.c` in this repository. This was compiled with gcc compiler on a Mac - but should likely work with Windows just as fine.
+
+### First method
+At first, I thought about splitting words of the sentence - and pushing those into an array of char pointers. Quickly my program became too cumbersome with many mallocs/frees, multiple loops etc. I abandoned that approach and tried looking into this problem by doing some in-place manipulations.
+
+To keep things easy at first - I am not going to worry about punctuations and try to solve this problems without regards to punctuations. We will revisit the punctuation difficulty later.
+
+It's fairly trivial to reverse the sentence - character by character. We just need a left and right pointer --> and keep swapping characters until they cross. If you look at a sentence and its reversed words - you will notice there is a pattern we can use.
+
+- Original sentence     : *'you shall not pass'*
+- Reversed char-by-char : *'ssap ton llahs ouy'*
+- Reversed words        : *'pass not shall you'*
+
+The char-by-char reversal already and reversed-words have the words in same place - we just need one more reversal for each word to get the final result. So the algorithm would look something like:
+
+```
+str <-- 'you shall not pass'
+str = reverse(str)  <-- 'ssap ton llahs ouy'
+for each word in str {
+  reverse(word)
+}
+```
+
+And below is how the reverse_words routine would look.
+```
+void reverse_words(char *str) {
+    int i, j = 0;
+    int len = strlen(str);
+
+    // reverse entire string.
+    reverse(str, 0, len);
+
+    for (i = 0; i < len; i++)
+        if (str[i] == ' ') {
+            // reverse back individual words
+            reverse(str, j, i);
+            while (str[i] == ' ')
+                i++;
+            j = i;
+        }
+
+        // reverse last word
+        reverse(str, j, i);
+}
+```
+
+where `reverse(char *str, int start, int end)` is an internal method which would reverse the string, char-by-char between start and end indexes.
+
